@@ -31,6 +31,9 @@ class User(db.Model, UserMixin):
         # used to check if a plain text password matches a hashed password.
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
 
+    def can_purchase(self, item_obj):
+        return self.budget >= item_obj.price
+
     def __repr__(self):
         return f'User {self.id} {self.username} {self.email_address} {self.password_hash}'
 
@@ -42,11 +45,15 @@ class Item(db.Model):
     barcode = db.Column(db.String(length=12), nullable=False, unique=True)
     price = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(1024), nullable=False, unique=True)
-    owner = db.Column(db.Integer, db.ForeignKey('userlist.id'), nullable=False)
+    owner = db.Column(db.Integer, db.ForeignKey('userlist.id'))
 
     def __repr__(self):
         return f'<Item {self.id} {self.name} {self.barcode} {self.price} {self.description}>'
 
+    def buy(self, user):
+        self.owner = user.id
+        user.budget -= self.price
+        db.session.commit()
 
 with app.app_context():
     db.create_all()
