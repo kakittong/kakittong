@@ -3,7 +3,8 @@ from market import app
 from market.models import Item, User
 from market.forms import RegisterForm, LoginForm
 from market import db
-from flask_login import login_user
+# it includes current_user
+from flask_login import login_user, current_user, logout_user
 
 @app.route('/')
 @app.route('/home')
@@ -45,7 +46,13 @@ def login_page():
             return redirect(url_for('market_page'))
         else:
             flash('Username and password are not match! Please try again', category='danger')
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, current_user=current_user)
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout_page():
+    logout_user()
+    flash("You have been logged out!", category='info')
+    return redirect(url_for('home_page'))
 
 @app.route('/about/<username>')
 def about_page(username):
