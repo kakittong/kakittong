@@ -4,6 +4,7 @@ from market import app
 from market import bcrypt
 from flask_login import UserMixin
 
+
 # Define a user loader function that retrieves a User object from the database
 @login_manager.user_loader
 def load_user(user_id):
